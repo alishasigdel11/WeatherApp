@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather Update App</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Quicksand&display=swap');
+
+        *,
+        :before,
+        :after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        body {
+            font-family: 'Quicksand', sans-serif;
+            background-image: url(https://raw.githubusercontent.com/CiurescuP/LogIn-Form/main/bg.jpg);
+            background-repeat: no-repeat;
+            background-size: cover;
+            color: #fff;
+        }
+
+        .moshpit {
+            width: 450px;
+            background-color: rgba(255, 255, 255, 0.13);
+            position: absolute;
+            transform: translate(-50%, -50%);
+            top: 50%;
+            left: 50%;
+            border-radius: 17px;
+            backdrop-filter: blur(5px);
+            border: 5px solid rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 40px rgba(129, 236, 174, 0.6);
+            padding: 20px;
+            text-align: center;
+        }
+
+        .moshpit h1 {
+            font-size: 40px;
+            font-weight: 600;
+            line-height: 50px;
+            text-align: center;
+        }
+
+        .moshpit input {
+            margin-top: 10px;
+            margin-bottom: 15px;
+            padding: 11px 15px;
+            font-size: 14px;
+            font-weight: 300;
+            background: rgba(0, 0, 0, 0.22);
+            border: 2px solid #38363654;
+            border-radius: 5px;
+            width: calc(100% - 24px);
+            color: #fff;
+        }
+
+        .moshpit button {
+            margin-top: 20px;
+            margin-bottom: 15px;
+            width: 100%;
+            background: rgba(0, 0, 0, 0.22);
+            border: 2px solid #38363654;
+            border-radius: 5px;
+            color: #e1e1e1;
+            padding: 8px 15px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.5s ease;
+        }
+
+        .moshpit button:hover {
+            background: #629677;
+        }
+
+        .moshpit button:focus {
+            box-shadow: 0px 0px 0px 2px rgba(103, 110, 103, 0.71);
+            background: #629677;
+        }
+
+        .forecast {
+            margin-top: 20px;
+            color: #fff;
+        }
+
+        .forecast img {
+            width: 100px;
+        }
+
+        .mosh {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 20px;
+        }
+
+        .mosh .icon {
+            text-align: center;
+            background: rgba(0, 0, 0, 0.22);
+            padding: 10px;
+            border-radius: 8px;
+            box-shadow: 0px 4px 8px #0c0b0b00;
+            transition: all 0.5s ease;
+        }
+
+        .mosh .icon img {
+            width: 50px;
+            height: 50px;
+        }
+
+        .mosh .icon p {
+            margin: 5px 0 0;
+            font-size: 0.9rem;
+            color: #e1e1e1;
+        }
+
+        .mosh .icon:hover {
+            box-shadow: 0px 4px 14px #0000007a;
+        }
+
+        .temperature {
+            font-size: 2.5rem;
+            color: #ffffff;
+        }
+
+        .desc {
+            text-transform: capitalize;
+            font-size: 1.2rem;
+        }
+
+        ::placeholder {
+            color: #e5e5e5;
+        }
+
+        input:hover {
+            background: #434343;
+            transition: all 0.5s ease;
+        }
+
+        input:focus {
+            box-shadow: 0px 2px 2px #0000002b, 0px 5px 10px #00000036;
+            background: #434343;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="moshpit">
+        <h1>Weather Update</h1>
+        <input type="text" id="location" placeholder="Enter city name (e.g., Kathmandu)">
+        <button onclick="fetchWeather()">Get Weather</button>
+        <div class="forecast" id="forecast"></div>
+    </div>
+
+    <script>
+        async function fetchWeather() {
+            const location = document.getElementById('location').value.trim();
+            const apiKey = 'a7105641180d8b8bf7f6eb14ebd8ea72';
+
+            if (!location) {
+                alert('Please enter a city name.');
+                return;
+            }
+
+            const url = `https://api.openweathermap.org/data/2.5/weather?q=${encodeURIComponent(location)}&appid=${apiKey}&units=metric`;
+
+            try {
+                const response = await fetch(url);
+
+                if (!response.ok) {
+                    const errorData = await response.json();
+                    console.error('API Error:', errorData);
+                    throw new Error(errorData.message || 'City not found or invalid input.');
+                }
+
+                const data = await response.json();
+                const forecast = document.getElementById('forecast');
+
+                const date = new Date();
+                const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+                const day = days[date.getDay()];
+                const fullDate = `${months[date.getMonth()]} ${date.getDate()}, ${date.getFullYear()}`;
+
+                forecast.innerHTML = `
+                    <h2>${data.name}, ${data.sys.country}</h2>
+                    <br>
+                    <p>${day}, ${fullDate}</p>
+                    <br>
+                    <p>Main Weather Condition: ${data.weather[0].main}</p>
+                    <br>
+                    <p>Weather Condition: ${data.weather[0].description}</p>
+                    <br>
+                    <img src="https://openweathermap.org/img/wn/${data.weather[0].icon}@2x.png" alt="Weather icon">
+                    <p class="temperature">${Math.round(data.main.temp)}&deg;C</p>
+                    <div class="mosh">
+                        <div class="icon">
+                            <img src="https://img.icons8.com/fluency/48/humidity.png" alt="Humidity icon">
+                            <p>Humidity: ${data.main.humidity}%</p>
+                        </div>
+                        <div class="icon">
+                            <img src="https://img.icons8.com/fluency/48/wind.png" alt="Wind icon">
+                            <p>Wind: ${data.wind.speed} m/s</p>
+                        </div>
+                        <div class="icon">
+                            <img src="https://img.icons8.com/fluency/48/barometer-gauge.png" alt="Pressure icon">
+                            <p>Pressure: ${data.main.pressure} hPa</p>
+                        </div>
+                        <div class="icon">
+                            <img src="https://img.icons8.com/fluency/48/visible.png" alt="Visibility icon">
+                            <p>Visibility: ${(data.visibility / 1000).toFixed(1)} km</p>
+                        </div>
+                    </div>
+                `;
+
+            } catch (error) {
+                const forecast = document.getElementById('forecast');
+                forecast.innerHTML = `<p style="color: red;">Error: ${error.message}</p>`;
+                console.error('Fetch Error:', error);
+            }
+        }
+    </script>
+    
+</body>
+</html>
